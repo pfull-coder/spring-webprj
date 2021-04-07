@@ -58,9 +58,9 @@
 
 
                     <div class="btn-group">
-                        <button type="submit" data-oper='modify' class="btn btn-default">Modify</button>
-                        <button type="button" data-oper='remove' class="btn btn-danger">Remove</button>
-                        <button type="button" data-oper='list' class="btn btn-info">List</button>
+                        <button type="submit" data-oper='modify' class="btn btn-default">수정</button>
+                        <button type="button" data-oper='remove' class="btn btn-danger">삭제</button>
+                        <button type="button" data-oper='list' class="btn btn-info">목록</button>
                     </div>
                 </form>
 
@@ -75,6 +75,25 @@
 </div>
 <!-- /.row -->
 
+<script>
+    document.querySelector('.btn-group').addEventListener('click', e => {
+        e.preventDefault(); //submit 기능 중지 (서버로 전송 기능)
+        // console.log(e.target.dataset.oper);
+        const oper = e.target.dataset.oper;
+        const $actionForm = document.querySelector('form[role=form]');
+        if (oper === 'list') {
+            //form의 action을 /board/list로 변경, method를 get으로 변경
+            $actionForm.setAttribute('action', '/board/list');
+            $actionForm.setAttribute('method', 'get');
+        } else if (oper === 'remove') {
+            //form의 action을 /board/remove로 변경
+            $actionForm.setAttribute('action', '/board/remove');
+        }
+        //form을 submit
+        $actionForm.submit();
+    });
+
+</script>
 
 
 <%@include file="../includes/footer.jsp"%>

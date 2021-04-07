@@ -1,10 +1,13 @@
 package com.myapp.webprj.board.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.util.Date;
 
-@Setter @getter
+@Setter @Getter
 @ToString
-
 public class Board {
 
     private Long bno;
