@@ -41,7 +41,14 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public int getTotal() {
-        return boardMapper.getTotalCount();
+    public int getTotal(Criteria cri) {
+        return boardMapper.getSearchTotalCount(cri);
+    }
+
+    @Override
+    public List<Board> searchList(Criteria cri) {
+        List<Board> searchList = boardMapper.getSearchList(cri);
+
+        return searchList;
     }
 }

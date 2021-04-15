@@ -4,11 +4,13 @@ import com.myapp.webprj.board.domain.Board;
 import com.myapp.webprj.board.service.BoardService;
 import com.myapp.webprj.common.Criteria;
 import com.myapp.webprj.common.PageMaker;
+import com.myapp.webprj.reply.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -27,9 +29,12 @@ public class BoardController {
     @GetMapping("/list")
     public String list(Criteria cri, Model model) {
         log.info("/board/list GET요청 발생!: " + cri);
-        List<Board> list = boardService.getList(cri);
+
+//        List<Board> list = boardService.getList(cri);
+        List<Board> list = boardService.searchList(cri);
+
         model.addAttribute("list", list);
-        model.addAttribute("pageInfo", new PageMaker(cri, boardService.getTotal()));
+        model.addAttribute("pageInfo", new PageMaker(cri, boardService.getTotal(cri)));
         return "board/list";
     }
 
@@ -50,16 +55,17 @@ public class BoardController {
 
     //게시글 상세조회 요청
     @GetMapping("/get")
-    public String get(Long bno, Model model) {
+    public String get(Long bno, @ModelAttribute("pageInfo") Criteria cri, Model model) {
         log.info("/board/get GET요청!: " + bno);
         Board board = boardService.get(bno);
         model.addAttribute("board", board);
+//        model.addAttribute("pageInfo", cri);
         return "board/get";
     }
 
     //게시글 수정 화면 요청
     @GetMapping("/modify")
-    public String modify(Long bno, Model model) {
+    public String modify(Long bno, @ModelAttribute("pageInfo") Criteria cri, Model model) {
         log.info("/board/modify GET!: " + bno);
         model.addAttribute("board", boardService.get(bno));
         return "board/modify";

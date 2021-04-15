@@ -43,6 +43,7 @@
         <button id='list-btn' class="btn btn-info">목록</button>
 
 
+
       </div>
       <!--  end panel-body -->
 
@@ -57,11 +58,11 @@
 $(document).ready(function() {
       //목록 버튼 이벤트
       document.getElementById('list-btn').addEventListener('click', e => {
-          location.href='/board/list';
+          location.href='/board/list?page=${pageInfo.page}&type=${pageInfo.type}&keyword=${pageInfo.keyword}';
       });
       //수정 버튼 이벤트
       document.getElementById('modify-btn').addEventListener('click', e => {
-          location.href='/board/modify?bno=${board.bno}';
+          location.href='/board/modify?page=${pageInfo.page}&type=${pageInfo.type}&keyword=${pageInfo.keyword}&bno=${board.bno}';
       });
 });
 </script>
