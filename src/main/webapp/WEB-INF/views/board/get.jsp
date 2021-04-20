@@ -295,7 +295,28 @@
                     }
                 });
         });
-    }); //JQuery 영역
+        // 서버에 댓글 개별 조회 비동기 요청
+        const rno = e.currentTarget.datasest.rno;
+        // console.log(rno);
+        fetch('/api/v1/replies/' + rno)
+            .then(res => res.json())
+            .then(reply => {
+                //console.log(reply);
+                $('input[name=reply]').val(reply.reply);
+                $('input[name=replyer]').val(reply.replyer);
+                $('input[name=replyDate]').val(formatDate(reply.replyDate))
+                $('input[name=replyDate]').attr('readonly', 'readonly')
+
+                $modal.data('rno', rno)
+                
+
+            });
+
+        $modal.modal('show');
+
+
+    }); 
+    //JQuery 영역
     (function () {
         showReplyList(curPageNum);
     }());

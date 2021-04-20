@@ -65,9 +65,9 @@
 								<option value="title" ${pageInfo.cri.type == 'title' ? 'selected' : ''}>제목</option>
 								<option value="content" ${pageInfo.cri.type == 'content' ? 'selected' : ''}>내용</option>
 								<option value="writer" ${pageInfo.cri.type == 'writer' ? 'selected' : ''}>작성자</option>
-								<option value="titleContent" ${pageInfo.cri.type == 'titleContent' ? 'selected' : ''}>제목 or 내용</option>
-							</select>
-							<input type='text' name='keyword' value="${pageInfo.cri.keyword}" />
+								<option value="titleContent" ${pageInfo.cri.type == 'titleContent' ? 'selected' : ''}>제목 or 내용</option>	
+							</select> 
+							<input type='text' name='keyword' value="${pageInfo.cri.keyword}" /> 	
 							<button class='btn btn-default'>Search</button>
 						</form>
 					</div>
@@ -159,7 +159,7 @@ $(document).ready(function() {
         }
     }
     (function () {
-
+        
         checkModal(resultMessage);
         //현재 위치한 페이지에 클래스 active 부여하는 함수
         appendPageActive("${pageInfo.cri.page}");
