@@ -309,7 +309,6 @@
 
                 $modal.data('rno', rno)
                 
-
             });
 
         $modal.modal('show');
