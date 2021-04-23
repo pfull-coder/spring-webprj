@@ -21,4 +21,7 @@ class FileUtilsTest {
         System.out.println("newUploadPath = " + newUploadPath);
     }
 
+    //파일 로딩 요청 처리
+    //요청 URI : /loadFile?fileName=/upload/2021/04/22
+
 }
