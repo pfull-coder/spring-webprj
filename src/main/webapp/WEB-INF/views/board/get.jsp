@@ -4,6 +4,25 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@include file="../includes/header.jsp"%>
 
+<style>
+    .fileDrop {
+        width: 800px;
+        height: 400px;
+        border: 1px dashed gray;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5em;
+    }
+    .uploaded-list {
+        display: flex;
+    }
+    .img-sizing {
+        display: block;
+        width: 100px;
+        height: 100px;
+    }
+</style>
 
 <div class="row">
     <div class="col-lg-12">
@@ -38,11 +57,13 @@
                     <label>Writer</label> <input class="form-control" name='writer' value="${board.writer }" readonly>
                 </div>
 
+                <div class="form-group">
+                    <ul class="uploaded-list"></ul>
+                </div>
+
 
                 <button id='modify-btn' class="btn btn-default">수정</button>
                 <button id='list-btn' class="btn btn-info">목록</button>
-
-
 
             </div>
             <!--  end panel-body -->
@@ -282,7 +303,6 @@
                 },
                 body: JSON.stringify(replyObj)
             };
-
             fetch('/api/v1/replies/', reqInfo)
                 .then(res => res.text())
                 .then(msg => {
@@ -295,27 +315,118 @@
                     }
                 });
         });
-        // 서버에 댓글 개별 조회 비동기 요청
-        const rno = e.currentTarget.datasest.rno;
-        // console.log(rno);
-        fetch('/api/v1/replies/' + rno)
-            .then(res => res.json())
-            .then(reply => {
-                //console.log(reply);
-                $('input[name=reply]').val(reply.reply);
-                $('input[name=replyer]').val(reply.replyer);
-                $('input[name=replyDate]').val(formatDate(reply.replyDate))
-                $('input[name=replyDate]').attr('readonly', 'readonly')
-
-                $modal.data('rno', rno)
-                
-            });
-
-        $modal.modal('show');
-
-
-    }); 
-    //JQuery 영역
+        //댓글 li를 눌렀을 때 댓글 상세보기 모달이 뜨는 이벤트
+        $('ul.chat').on('click', 'li', e => {
+            // console.log(e.currentTarget);
+            $modal.find('button[id=modalRegisterBtn]').hide();
+            $modal.find('button[id != modalRegisterBtn]').show();
+            $modal.find('input[name=replyDate]').parent().show();
+            //서버에 댓글 개별 조회 비동기 요청
+            const rno = e.currentTarget.dataset.rno;
+            // console.log(rno);
+            fetch('/api/v1/replies/' + rno)
+                .then(res => res.json())
+                .then(reply => {
+                    // console.log(reply);
+                    $('input[name=reply]').val(reply.reply);
+                    $('input[name=replyer]').val(reply.replyer);
+                    $('input[name=replyDate]').val(formatDate(reply.replyDate));
+                    $('input[name=replyDate]').attr('readonly', 'readonly');
+                    //모달에다가 rno를 붙여놓자
+                    $modal.data('rno', rno);
+                });
+            $modal.modal('show');
+        });
+        //댓글 수정 버튼 클릭 이벤트
+        $('#modalModBtn').on('click', e => {
+            const modDataObj = {
+                rno: $modal.data('rno'),
+                reply: $('input[name=reply]').val()
+            };
+            // console.log(modDataObj);
+            const reqInfo = {
+                method: 'PUT',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify(modDataObj)
+            };
+            fetch('/api/v1/replies/' + modDataObj.rno, reqInfo)
+                .then(res => res.text())
+                .then(msg => {
+                    if (msg === 'modSuccess') {
+                        $modal.modal('hide');
+                        showReplyList(curPageNum);
+                    } else {
+                        alert('수정 실패!');
+                    }
+                });
+        });
+        //댓글 수정 버튼 클릭 이벤트
+        $('#modalRemoveBtn').on('click', e => {
+            if (!confirm('정말로 댓글을 삭제합니까?')) {
+                return;
+            }
+            const reqInfo = {
+                method: 'DELETE'
+            };
+            fetch('/api/v1/replies/' + bno + '/' + $modal.data('rno'), reqInfo)
+                .then(res => res.text())
+                .then(msg => {
+                    if (msg === 'delSuccess') {
+                        $modal.modal('hide');
+                        showReplyList(curPageNum);
+                    } else {
+                        alert('삭제 실패!');
+                    }
+                });
+        });
+        //이미지파일인지 확인하는 함수
+        function isImageFile(originFileName) {
+            //정규표현식
+            const pattern = /jpg$|gif$|png$/i;
+            return originFileName.match(pattern);
+        }
+        //확장자 판별 후 태그처리 함수
+        function checkExtType(fileName) {
+            console.log('checkExtType! call!');
+            let originFileName = fileName.substring(fileName.indexOf("_") + 1);
+            //이미지인지 확인
+            if (isImageFile(originFileName)) {
+                originFileName = fileName.substring(fileName.indexOf("_") + 1);
+                const $img = document.createElement('img');
+                $img.classList.add('img-sizing');
+                $img.setAttribute('src', '/loadFile?fileName=' + fileName);
+                $img.setAttribute('alt', originFileName);
+                $('.uploaded-list').append($img);
+            } else {
+                //이미지가 아니라면 다운로드 링크를 생성
+                const $link = document.createElement('a');
+                $link.setAttribute('href', '/loadFile?fileName=' + fileName);
+                const $img = document.createElement('img');
+                $img.classList.add('img-sizing');
+                $img.setAttribute('src', '/img/file_icon.jpg');
+                $link.appendChild($img);
+                $link.innerHTML += '<span>' + originFileName + '</span>';
+                $('.uploaded-list').append($link);
+            }
+        }
+        //드롭한 파일의 형식에 따라 태그를 보여주는 함수
+        function showFileData(fileNameList) {
+            for (let fileName of fileNameList) {
+                checkExtType(fileName);
+            }
+        }
+        // 파일 목록 불러오기
+        function showFileList() {
+            fetch('/board/file/' + bno)
+                .then(res => res.json())
+                .then(fileNameList => {
+                    showFileData(fileNameList);
+                });
+        }
+        showFileList();
+    }); //JQuery 영역
     (function () {
         showReplyList(curPageNum);
     }());
