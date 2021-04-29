@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class MemberserviceImpl implements MemberService {
+public class MemberServiceImpl implements MemberService {
 
     private final MemberMapper memberMapper;
 
@@ -45,5 +45,20 @@ public class MemberserviceImpl implements MemberService {
     @Override
     public Member getUser(String account) {
         return memberMapper.getUserInfo(account);
+    }
+
+    @Override
+    public String login(Member inputData, Member dbData) {
+
+        if (dbData != null) {
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            if (encoder.matches(inputData.getPassword(), dbData.getPassword())) {
+                return "loginSuccess";
+            } else {
+                return "pwFail";
+            }
+        } else {
+            return "idFail";
+        }
     }
 }
